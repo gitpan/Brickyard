@@ -1,0 +1,78 @@
+{
+   "abstract" : "Plugin system based on roles",
+   "author" : [
+      "Marcel Gruenauer <marcel@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.200000, CPAN::Meta::Converter version 2.102400",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Brickyard",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.31"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "File::Slurp" : 0,
+            "Module::Load" : 0,
+            "Role::Basic" : 0,
+            "perl" : "5.008"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Carp" : 0,
+            "English" : 0,
+            "File::Find" : 0,
+            "File::Temp" : 0,
+            "Scalar::Util" : 0,
+            "Test::Class" : 0,
+            "Test::Class::Load" : 0,
+            "Test::More" : "0.94",
+            "Test::Most" : 0,
+            "parent" : 0
+         }
+      }
+   },
+   "provides" : {
+      "Brickyard" : {
+         "file" : "lib/Brickyard.pm",
+         "version" : "1.103640"
+      },
+      "Brickyard::PluginContainer" : {
+         "file" : "lib/Brickyard/PluginContainer.pm",
+         "version" : "1.103640"
+      },
+      "Brickyard::Role::Plugin" : {
+         "file" : "lib/Brickyard/Role/Plugin.pm",
+         "version" : "1.103640"
+      },
+      "Brickyard::Role::PluginBundle" : {
+         "file" : "lib/Brickyard/Role/PluginBundle.pm",
+         "version" : "1.103640"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "mailto" : "bug-brickyard at rt.cpan.org",
+         "web" : "http://rt.cpan.org/Public/Dist/Display.html?Name=Brickyard"
+      },
+      "homepage" : "http://search.cpan.org/dist/Brickyard/",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/hanekomu/Brickyard.git",
+         "web" : "http://github.com/hanekomu/Brickyard"
+      }
+   },
+   "version" : "1.103640"
+}
+

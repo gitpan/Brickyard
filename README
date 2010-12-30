@@ -1,0 +1,150 @@
+NAME
+    Brickyard - Plugin system based on roles
+
+VERSION
+    version 1.103640
+
+SYNOPSIS
+        use Brickyard;
+        my $brickyard = Brickyard->new(base_package => 'My::App');
+        my $plugins =
+          $brickyard->get_container_from_config('myapp.ini');
+        $_->some_method for $plugins->plugins_with(-SomeRole);
+
+DESCRIPTION
+    This is a lightweight plugin system based on roles. It does not use
+    Moose but relies on "Role::Basic" instead, and very few other modules.
+
+    It takes its inspiration from Dist::Zilla, but has much less flexibility
+    and therefore is also much less complex.
+
+METHODS
+  new
+    Constructs a new object. Takes an optional hash or hash reference of
+    arguments to initialize the object.
+
+  base_package
+    Read-write accessor for the base package name that is used in
+    "expand_package()". Defaults to "MyApp".
+
+  parse_ini
+    Takes a string that contains configuration in "INI" format and parses it
+    into an array of configuration sections. It returns a reference to that
+    array.
+
+    Using an array, as opposed to a hash, ensures that the section order is
+    preserved, so we know in which order to process plugins in Brickyard's
+    "plugins_with()" method.
+
+    Each array element corresponds to an "INI" section. Each section is
+    itself a reference to an array with three elements:
+
+    The first element is the section name. The second element is the package
+    name of the plugin; it is obtained by expanding the section name using
+    "expand_package()". The third element is a reference to a plugin
+    configuration hash; it is the section's payload. If a section payload
+    key occurs several times, it is turned into an array reference in the
+    plugin configuration hash.
+
+    The first section is the global section, denoted by the name "_". Any
+    payload in the "INI" configuration that occurs before the first section
+    ends up in this section.
+
+    For example:
+
+        ; A comment
+        name = Foobar
+
+        [@Default]
+
+        [Some::Thing]
+        foo = bar
+        baz = 43
+        baz = blah
+
+    is parsed into this structure:
+
+        [ '_',        'MyApp::Plugin::_',             { name => 'Foobar' } ],
+        [ '@Default', 'MyApp::PluginBundle::Default', {} ],
+        [   'Some::Thing',
+            'MyApp::Plugin::Some::Thing',
+            {   'baz' => [ '43', 'blah' ],
+                'foo' => 'bar'
+            }
+        ]
+
+  expand_package
+    Takes an abbreviated package name and expands it into the real package
+    name. "INI" section names are processed this way so you don't have to
+    repeat common prefixes all the time.
+
+    If "@" occurs at the start of the string, it is replaced by the base
+    name plus <::PluginBundle::>.
+
+    A "-" is replaced by the base name plus "::Role::".
+
+    A "=" is replaced by the empty string, so the remained is returned
+    unaltered.
+
+    Otherwise the base name plus "::Plugin::" is prepended.
+
+    The base name is normally whatever "base_package()" returns, but if the
+    string starts with "*", the asterisk is deleted and "Brickyard" is used
+    for the base name.
+
+    Here are some examples of package name expansion:
+
+        @Service::Default     MyApp::PluginBundle::Service::Default
+        *@Filter              Brickyard::PluginBundle::Filter
+        *Filter               Brickyard::Plugin::Filter
+        =Foo::Bar             Foo::Bar
+        Some::Thing           MyApp::Plugin::Some::Thing
+        -Thing::Frobnulizer   MyApp::Role::Thing::Frobnulizer
+
+  add_to_container_from_config
+    Takes a Brickyard::PluginContainer object and a configuration. For each
+    configuration section it creates a plugin object, initializes it with
+    the plugin configuration hash and adds it to the container.
+
+    If the configuration is a string in "INI" format, it is parsed. It can
+    also be a configuration structure as returned by "parse_ini()" or a
+    plugin bundle's "bundle_config()" method.
+
+    If an object is created that consumes the Brickyard::Role::PluginBundle
+    role, the bundle is processed recursively.
+
+  get_container_from_config
+    Takes a configuration, creates a plugin container, populates the
+    container using "add_to_container_from_config()" and returns the plugin
+    container.
+
+INSTALLATION
+    See perlmodinstall for information and options on installing Perl
+    modules.
+
+BUGS AND LIMITATIONS
+    No bugs have been reported.
+
+    Please report any bugs or feature requests through the web interface at
+    <http://rt.cpan.org/Public/Dist/Display.html?Name=Brickyard>.
+
+AVAILABILITY
+    The latest version of this module is available from the Comprehensive
+    Perl Archive Network (CPAN). Visit <http://www.perl.com/CPAN/> to find a
+    CPAN site near you, or see <http://search.cpan.org/dist/Brickyard/>.
+
+    The development version lives at
+    <http://github.com/hanekomu/Brickyard.git> and may be cloned from
+    <git://github.com/hanekomu/Brickyard.git>. Instead of sending patches,
+    please fork this project using the standard git and github
+    infrastructure.
+
+AUTHOR
+    Marcel Gruenauer <marcel@cpan.org>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2010 by Marcel Gruenauer.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
