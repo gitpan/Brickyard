@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard::Role::PluginBundle;
 BEGIN {
-  $Brickyard::Role::PluginBundle::VERSION = '1.103640';
+  $Brickyard::Role::PluginBundle::VERSION = '1.110020';
 }
 
 # ABSTRACT: Role to use for plugin bundles
@@ -13,8 +13,11 @@ requires 'bundle_config';
 
 sub new {
     my $class = shift;
-    bless { (@_ == 1 && ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_), }, $class;
+    bless {@_}, $class;
 }
+
+# Can't use Class::Accessor::Lite to generate this because Role::Basic would
+# see that it was 'imported' from another package and so would not apply it.
 
 sub brickyard {
     $_[0]->{brickyard} = $_[1] if @_ == 2;
@@ -37,7 +40,7 @@ Brickyard::Role::PluginBundle - Role to use for plugin bundles
 
 =head1 VERSION
 
-version 1.103640
+version 1.110020
 
 =head1 SYNOPSIS
 
@@ -56,8 +59,8 @@ version 1.103640
 
 =head2 new
 
-Constructs a new object. Takes an optional hash or hash reference of arguments
-to initialize the object.
+Constructs a new object. Takes an optional hash of arguments to initialize the
+object.
 
 =head2 brickyard
 

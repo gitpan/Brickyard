@@ -2,7 +2,7 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.103640
+    version 1.110020
 
 SYNOPSIS
         use Brickyard;
@@ -20,8 +20,8 @@ DESCRIPTION
 
 METHODS
   new
-    Constructs a new object. Takes an optional hash or hash reference of
-    arguments to initialize the object.
+    Constructs a new object. Takes an optional hash of arguments to
+    initialize the object.
 
   base_package
     Read-write accessor for the base package name that is used in

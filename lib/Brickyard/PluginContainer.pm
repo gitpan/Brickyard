@@ -4,26 +4,15 @@ use strict;
 
 package Brickyard::PluginContainer;
 BEGIN {
-  $Brickyard::PluginContainer::VERSION = '1.103640';
+  $Brickyard::PluginContainer::VERSION = '1.110020';
 }
 
 # ABSTRACT: Container for plugins
+use Brickyard::Accessor rw => [qw(brickyard plugins)];
+
 sub new {
     my $class = shift;
-    bless {
-        plugins => [],
-        (@_ == 1 && ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_),
-    }, $class;
-}
-
-sub brickyard {
-    $_[0]->{brickyard} = $_[1] if @_ == 2;
-    $_[0]->{brickyard};
-}
-
-sub plugins {
-    $_[0]->{plugins} = $_[1] if @_ == 2;
-    $_[0]->{plugins};
+    bless { plugins => [], @_ }, $class;
 }
 
 sub plugins_with {
@@ -33,6 +22,10 @@ sub plugins_with {
     $plugins_role_cache{$role} ||=
       [ grep { $_->DOES($role) } @{ $self->plugins } ];
     @{ $plugins_role_cache{$role} };
+}
+
+sub reset_cache {
+    undef our %plugins_role_cache;
 }
 1;
 
@@ -46,7 +39,7 @@ Brickyard::PluginContainer - Container for plugins
 
 =head1 VERSION
 
-version 1.103640
+version 1.110020
 
 =head1 SYNOPSIS
 
@@ -60,8 +53,8 @@ version 1.103640
 
 =head2 new
 
-Constructs a new object. Takes an optional hash or hash reference of arguments
-to initialize the object.
+Constructs a new object. Takes an optional hash of arguments to initialize the
+object.
 
 =head2 brickyard
 
@@ -74,7 +67,11 @@ Read-write accessor for the reference to an array of plugins.
 =head2 plugins_with
 
 Takes a role name and returns a list of all the plugins that consume this
-role.
+role. The result is cached, keyed by the role name.
+
+=head2 reset_cache
+
+Clears the cache kept by C<plugins_with()>.
 
 =head1 INSTALLATION
 

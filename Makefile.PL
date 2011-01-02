@@ -31,11 +31,9 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'perl',
   'NAME' => 'Brickyard',
   'PREREQ_PM' => {
-    'File::Slurp' => '0',
-    'Module::Load' => '0',
     'Role::Basic' => '0'
   },
-  'VERSION' => '1.103640',
+  'VERSION' => '1.110020',
   'test' => {
     'TESTS' => 't/*.t'
   }

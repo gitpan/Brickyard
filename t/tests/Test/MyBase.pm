@@ -11,6 +11,9 @@ INIT { Test::Class->runtests }
 
 sub make_object {
     my $test = shift;
+    my $package = $test->class;
+    eval "require $package";
+    die $@ if $@;
     $test->class->new(@_);
 }
 

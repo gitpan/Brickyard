@@ -4,25 +4,16 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.103640';
+  $Brickyard::VERSION = '1.110020';
 }
 
 # ABSTRACT: Plugin system based on roles
-use File::Slurp;
-use Module::Load;
+use Brickyard::Accessor rw => [qw(base_package)];
 use Brickyard::PluginContainer;
 
 sub new {
     my $class = shift;
-    bless {
-        base_package => 'MyApp',
-        (@_ == 1 && ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_),
-    }, $class;
-}
-
-sub base_package {
-    $_[0]->{base_package} = $_[1] if @_ == 2;
-    $_[0]->{base_package};
+    bless { base_package => 'MyApp', @_ }, $class;
 }
 
 sub parse_ini {
@@ -72,7 +63,7 @@ sub expand_package {
 sub add_to_container_from_config {
     my ($self, $container, $config) = @_;
     unless (ref $config) {
-        $config = $self->parse_ini(scalar read_file($config));
+        $config = $self->parse_ini(do { local (@ARGV, $/) = $config; <> });
     }
     for my $section (@$config) {
         my ($name, $package, $plugin_config) = @$section;
@@ -83,9 +74,10 @@ sub add_to_container_from_config {
                 $container->$key($value);
             }
         } else {
-            load $package;
+            eval "require $package";
+            die $@ if $@;
             if ($package->DOES('Brickyard::Role::PluginBundle')) {
-                my $bundle = $package->new(brickyard => $self);
+                my $bundle = $package->new(brickyard => $self, %$plugin_config);
                 $self->add_to_container_from_config($container,
                     $bundle->bundle_config);
             } else {
@@ -117,7 +109,7 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.103640
+version 1.110020
 
 =head1 SYNOPSIS
 
@@ -139,8 +131,8 @@ and therefore is also much less complex.
 
 =head2 new
 
-Constructs a new object. Takes an optional hash or hash reference of arguments
-to initialize the object.
+Constructs a new object. Takes an optional hash of arguments to initialize the
+object.
 
 =head2 base_package
 

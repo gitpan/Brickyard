@@ -1,4 +1,11 @@
 Revision history for Brickyard
 
+1.110020  2011-01-02 21:48:04 Europe/Vienna
+    - added [*@Filter]
+    - in all classes, new() now only takes a hash, not a hashref, to initialize
+      the object
+    - removed dependencies
+    - added custom accessor generator
+
 1.103640  2010-12-30 21:21:14 Europe/Vienna
     - initial version

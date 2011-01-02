@@ -3,16 +3,12 @@ use warnings;
 use strict;
 
 package BrickyardTest::StringMunger::Plugin::Repeat;
+use Brickyard::Accessor rw => [qw(times)];
 use Role::Basic 'with';
 with qw(
     Brickyard::Role::Plugin
     BrickyardTest::StringMunger::Role::StringMunger
 );
-
-sub times {
-    $_[0]->{times} = $_[1] if @_ == 2;
-    $_[0]->{times};
-}
 
 sub run {
     my ($self, $text) = @_;
