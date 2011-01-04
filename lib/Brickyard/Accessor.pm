@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard::Accessor;
 BEGIN {
-  $Brickyard::Accessor::VERSION = '1.110020';
+  $Brickyard::Accessor::VERSION = '1.110040';
 }
 
 # ABSTRACT: Accessor generator for Brickyard classes
@@ -15,7 +15,7 @@ sub import {
     my $pkg      = caller(0);
     my %key_ctor = (rw => \&_mk_accessors);
     for my $key (sort keys %key_ctor) {
-        die "unknown parameter '$key'" unless defined $args{$key};
+        next unless $args{$key};
         die "value of the '$key' parameter should be an arrayref"
           unless ref $args{$key} eq 'ARRAY';
         $key_ctor{$key}->($pkg, @{ $args{$key} });
@@ -60,7 +60,7 @@ Brickyard::Accessor - Accessor generator for Brickyard classes
 
 =head1 VERSION
 
-version 1.110020
+version 1.110040
 
 =head1 SYNOPSIS
 

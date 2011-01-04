@@ -4,20 +4,21 @@ use strict;
 
 package Brickyard::Role::PluginBundle;
 BEGIN {
-  $Brickyard::Role::PluginBundle::VERSION = '1.110020';
+  $Brickyard::Role::PluginBundle::VERSION = '1.110040';
 }
 
 # ABSTRACT: Role to use for plugin bundles
 use Role::Basic;
 requires 'bundle_config';
 
+# Can't use Brickyard::Accessor to generate new() and the accessors because
+# Role::Basic would see that it was 'imported' from another package and so
+# would not apply it.
+
 sub new {
     my $class = shift;
     bless {@_}, $class;
 }
-
-# Can't use Class::Accessor::Lite to generate this because Role::Basic would
-# see that it was 'imported' from another package and so would not apply it.
 
 sub brickyard {
     $_[0]->{brickyard} = $_[1] if @_ == 2;
@@ -40,7 +41,7 @@ Brickyard::Role::PluginBundle - Role to use for plugin bundles
 
 =head1 VERSION
 
-version 1.110020
+version 1.110040
 
 =head1 SYNOPSIS
 
@@ -64,7 +65,7 @@ object.
 
 =head2 brickyard
 
-Read-write accessor for the L<Brickyard> object that populated this container.
+Read-write accessor for the L<Brickyard> object that created this object.
 
 =head2 _exp
 

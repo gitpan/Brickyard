@@ -4,23 +4,34 @@ use strict;
 
 package Brickyard::Role::Plugin;
 BEGIN {
-  $Brickyard::Role::Plugin::VERSION = '1.110020';
+  $Brickyard::Role::Plugin::VERSION = '1.110040';
 }
 
 # ABSTRACT: Role to use for plugins
 use Role::Basic;
+
+# Can't use Brickyard::Accessor to generate new() and the accessors because
+# Role::Basic would see that it was 'imported' from another package and so
+# would not apply it.
 
 sub new {
     my $class = shift;
     bless {@_}, $class;
 }
 
-# Can't use Class::Accessor::Lite to generate this because Role::Basic would
-# see that it was 'imported' from another package and so would not apply it.
-
 sub brickyard {
     $_[0]->{brickyard} = $_[1] if @_ == 2;
     $_[0]->{brickyard};
+}
+
+sub name {
+    $_[0]->{name} = $_[1] if @_ == 2;
+    $_[0]->{name};
+}
+
+sub plugins_with {
+    my ($self, $role) = @_;
+    $self->brickyard->plugins_with($role);
 }
 1;
 
@@ -34,7 +45,7 @@ Brickyard::Role::Plugin - Role to use for plugins
 
 =head1 VERSION
 
-version 1.110020
+version 1.110040
 
 =head1 SYNOPSIS
 
@@ -51,7 +62,15 @@ object.
 
 =head2 brickyard
 
-Read-write accessor for the L<Brickyard> object that populated this container.
+Read-write accessor for the L<Brickyard> object that created this plugin.
+
+=head2 name
+
+Read-write accessor for the plugin's name.
+
+=head2 plugins_with
+
+Delegates to the brickyard object's C<plugins_with()> method.
 
 =head1 INSTALLATION
 

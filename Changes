@@ -1,5 +1,13 @@
 Revision history for Brickyard
 
+1.110040  2011-01-04 11:34:50 Europe/Vienna
+    - no more Brickyard::PluginContainer; it's handled by Brickyard.pm itself
+    - better error message if we can't require() a package
+    - plugins can call plugins_with() themselves, will be delegated to the
+      brickyard object
+    - various bug fixes
+    - tests for now-fixed bugs and for new features
+
 1.110020  2011-01-02 21:48:04 Europe/Vienna
     - added [*@Filter]
     - in all classes, new() now only takes a hash, not a hashref, to initialize

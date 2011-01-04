@@ -13,7 +13,7 @@ sub make_object {
     my $test = shift;
     my $package = $test->class;
     eval "require $package";
-    die $@ if $@;
+    die "Cannot require $package: $@" if $@;
     $test->class->new(@_);
 }
 

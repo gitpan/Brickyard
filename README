@@ -2,14 +2,14 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.110020
+    version 1.110040
 
 SYNOPSIS
         use Brickyard;
         my $brickyard = Brickyard->new(base_package => 'My::App');
-        my $plugins =
-          $brickyard->get_container_from_config('myapp.ini');
-        $_->some_method for $plugins->plugins_with(-SomeRole);
+        my $root_config = MyApp::RootConfig->new;
+        $brickyard->init_from_config('myapp.ini', $root_config);
+        $_->some_method for $brickyard->plugins_with(-SomeRole);
 
 DESCRIPTION
     This is a lightweight plugin system based on roles. It does not use
@@ -101,10 +101,15 @@ METHODS
         Some::Thing           MyApp::Plugin::Some::Thing
         -Thing::Frobnulizer   MyApp::Role::Thing::Frobnulizer
 
-  add_to_container_from_config
-    Takes a Brickyard::PluginContainer object and a configuration. For each
-    configuration section it creates a plugin object, initializes it with
-    the plugin configuration hash and adds it to the container.
+  init_from_config
+    Takes configuration and a root object. For each configuration section it
+    creates a plugin object, initializes it with the plugin configuration
+    hash and adds it to the brickyard's array of plugins.
+
+    Any configuration keys that appear in the configuration's root section
+    are set on the root object. So the root object can be anything that has
+    set-accessors for all the configuration keys that can appear in the
+    configuration's root section.
 
     If the configuration is a string in "INI" format, it is parsed. It can
     also be a configuration structure as returned by "parse_ini()" or a
@@ -113,10 +118,15 @@ METHODS
     If an object is created that consumes the Brickyard::Role::PluginBundle
     role, the bundle is processed recursively.
 
-  get_container_from_config
-    Takes a configuration, creates a plugin container, populates the
-    container using "add_to_container_from_config()" and returns the plugin
-    container.
+  plugins
+    Read-write accessor for the reference to an array of plugins.
+
+  plugins_with
+    Takes a role name and returns a list of all the plugins that consume
+    this role. The result is cached, keyed by the role name.
+
+  reset_plugins
+    Clears the array of plugins as well as the cache - see "plugins_with()".
 
 INSTALLATION
     See perlmodinstall for information and options on installing Perl

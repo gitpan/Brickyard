@@ -25,22 +25,19 @@ name: Brickyard
 provides:
   Brickyard:
     file: lib/Brickyard.pm
-    version: 1.110020
+    version: 1.110040
   Brickyard::Accessor:
     file: lib/Brickyard/Accessor.pm
-    version: 1.110020
+    version: 1.110040
   Brickyard::PluginBundle::Filter:
     file: lib/Brickyard/PluginBundle/Filter.pm
-    version: 1.110020
-  Brickyard::PluginContainer:
-    file: lib/Brickyard/PluginContainer.pm
-    version: 1.110020
+    version: 1.110040
   Brickyard::Role::Plugin:
     file: lib/Brickyard/Role/Plugin.pm
-    version: 1.110020
+    version: 1.110040
   Brickyard::Role::PluginBundle:
     file: lib/Brickyard/Role/PluginBundle.pm
-    version: 1.110020
+    version: 1.110040
 requires:
   Role::Basic: 0
   perl: 5.008
@@ -48,4 +45,4 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Brickyard
   homepage: http://search.cpan.org/dist/Brickyard/
   repository: git://github.com/hanekomu/Brickyard.git
-version: 1.110020
+version: 1.110040

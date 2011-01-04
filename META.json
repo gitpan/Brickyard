@@ -43,27 +43,23 @@
    "provides" : {
       "Brickyard" : {
          "file" : "lib/Brickyard.pm",
-         "version" : "1.110020"
+         "version" : "1.110040"
       },
       "Brickyard::Accessor" : {
          "file" : "lib/Brickyard/Accessor.pm",
-         "version" : "1.110020"
+         "version" : "1.110040"
       },
       "Brickyard::PluginBundle::Filter" : {
          "file" : "lib/Brickyard/PluginBundle/Filter.pm",
-         "version" : "1.110020"
-      },
-      "Brickyard::PluginContainer" : {
-         "file" : "lib/Brickyard/PluginContainer.pm",
-         "version" : "1.110020"
+         "version" : "1.110040"
       },
       "Brickyard::Role::Plugin" : {
          "file" : "lib/Brickyard/Role/Plugin.pm",
-         "version" : "1.110020"
+         "version" : "1.110040"
       },
       "Brickyard::Role::PluginBundle" : {
          "file" : "lib/Brickyard/Role/PluginBundle.pm",
-         "version" : "1.110020"
+         "version" : "1.110040"
       }
    },
    "release_status" : "stable",
@@ -79,6 +75,6 @@
          "web" : "http://github.com/hanekomu/Brickyard"
       }
    },
-   "version" : "1.110020"
+   "version" : "1.110040"
 }
 

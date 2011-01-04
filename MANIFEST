@@ -10,7 +10,6 @@ README
 lib/Brickyard.pm
 lib/Brickyard/Accessor.pm
 lib/Brickyard/PluginBundle/Filter.pm
-lib/Brickyard/PluginContainer.pm
 lib/Brickyard/Role/Plugin.pm
 lib/Brickyard/Role/PluginBundle.pm
 t/00-compile.t
@@ -18,9 +17,12 @@ t/000-report-versions.t
 t/author-critic.t
 t/config/string-munger-filter.ini
 t/config/string-munger.ini
+t/lib/BrickyardTest/StringMunger/Plugin/Increment.pm
 t/lib/BrickyardTest/StringMunger/Plugin/Repeat.pm
+t/lib/BrickyardTest/StringMunger/Plugin/Reporter.pm
 t/lib/BrickyardTest/StringMunger/Plugin/Uppercase.pm
 t/lib/BrickyardTest/StringMunger/PluginBundle/Default.pm
+t/lib/BrickyardTest/StringMunger/Role/NumberMunger.pm
 t/lib/BrickyardTest/StringMunger/Role/StringMunger.pm
 t/perlcriticrc
 t/release-check-changes.t

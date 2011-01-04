@@ -4,16 +4,34 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.110020';
+  $Brickyard::VERSION = '1.110040';
 }
 
 # ABSTRACT: Plugin system based on roles
-use Brickyard::Accessor rw => [qw(base_package)];
-use Brickyard::PluginContainer;
+use Brickyard::Accessor rw => [qw(base_package plugins plugins_role_cache)];
 
 sub new {
     my $class = shift;
-    bless { base_package => 'MyApp', @_ }, $class;
+    bless {
+        base_package       => 'MyApp',
+        plugins            => [],
+        plugins_role_cache => {},
+        @_
+    }, $class;
+}
+
+sub plugins_with {
+    my ($self, $role) = @_;
+    $role = $self->expand_package($role);
+    $self->plugins_role_cache->{$role} ||=
+      [ grep { $_->DOES($role) } @{ $self->plugins } ];
+    @{ $self->plugins_role_cache->{$role} };
+}
+
+sub reset_plugins {
+    my $self = shift;
+    $self->plugins([]);
+    $self->plugins_role_cache({});
 }
 
 sub parse_ini {
@@ -60,28 +78,30 @@ sub expand_package {
     "$base\::Plugin::$_";
 }
 
-sub add_to_container_from_config {
-    my ($self, $container, $config) = @_;
+sub init_from_config {
+    my ($self, $config, $root) = @_;
     unless (ref $config) {
-        $config = $self->parse_ini(do { local (@ARGV, $/) = $config; <> });
+        $config = $self->parse_ini(
+            do { local (@ARGV, $/) = $config; <> }
+        );
     }
+
     for my $section (@$config) {
         my ($name, $package, $plugin_config) = @$section;
         if ($name eq '_') {
 
             # Global container configuration
             while (my ($key, $value) = each %$plugin_config) {
-                $container->$key($value);
+                $root->$key($value);
             }
         } else {
             eval "require $package";
-            die $@ if $@;
+            die "Cannot require $package: $@" if $@;
             if ($package->DOES('Brickyard::Role::PluginBundle')) {
                 my $bundle = $package->new(brickyard => $self, %$plugin_config);
-                $self->add_to_container_from_config($container,
-                    $bundle->bundle_config);
+                $self->init_from_config($bundle->bundle_config, $root);
             } else {
-                push @{ $container->plugins } => $package->new(
+                push @{ $self->plugins } => $package->new(
                     name      => $name,
                     brickyard => $self,
                     %$plugin_config
@@ -91,12 +111,6 @@ sub add_to_container_from_config {
     }
 }
 
-sub get_container_from_config {
-    my ($self, $config) = @_;
-    my $container = Brickyard::PluginContainer->new(brickyard => $self);
-    $self->add_to_container_from_config($container, $config);
-    $container;
-}
 1;
 
 
@@ -109,15 +123,15 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.110020
+version 1.110040
 
 =head1 SYNOPSIS
 
     use Brickyard;
     my $brickyard = Brickyard->new(base_package => 'My::App');
-    my $plugins =
-      $brickyard->get_container_from_config('myapp.ini');
-    $_->some_method for $plugins->plugins_with(-SomeRole);
+    my $root_config = MyApp::RootConfig->new;
+    $brickyard->init_from_config('myapp.ini', $root_config);
+    $_->some_method for $brickyard->plugins_with(-SomeRole);
 
 =head1 DESCRIPTION
 
@@ -213,11 +227,16 @@ Here are some examples of package name expansion:
     Some::Thing           MyApp::Plugin::Some::Thing
     -Thing::Frobnulizer   MyApp::Role::Thing::Frobnulizer
 
-=head2 add_to_container_from_config
+=head2 init_from_config
 
-Takes a L<Brickyard::PluginContainer> object and a configuration.  For each
-configuration section it creates a plugin object, initializes it with the
-plugin configuration hash and adds it to the container.
+Takes configuration and a root object. For each configuration section it
+creates a plugin object, initializes it with the plugin configuration hash and
+adds it to the brickyard's array of plugins.
+
+Any configuration keys that appear in the configuration's root section are set
+on the root object. So the root object can be anything that has set-accessors
+for all the configuration keys that can appear in the configuration's root
+section.
 
 If the configuration is a string in C<INI> format, it is parsed. It can also
 be a configuration structure as returned by C<parse_ini()> or a plugin
@@ -226,10 +245,18 @@ bundle's C<bundle_config()> method.
 If an object is created that consumes the L<Brickyard::Role::PluginBundle>
 role, the bundle is processed recursively.
 
-=head2 get_container_from_config
+=head2 plugins
 
-Takes a configuration, creates a plugin container, populates the container
-using C<add_to_container_from_config()> and returns the plugin container.
+Read-write accessor for the reference to an array of plugins.
+
+=head2 plugins_with
+
+Takes a role name and returns a list of all the plugins that consume this
+role. The result is cached, keyed by the role name.
+
+=head2 reset_plugins
+
+Clears the array of plugins as well as the cache - see C<plugins_with()>.
 
 =head1 INSTALLATION
 

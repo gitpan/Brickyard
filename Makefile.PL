@@ -33,7 +33,7 @@ my %WriteMakefileArgs = (
   'PREREQ_PM' => {
     'Role::Basic' => '0'
   },
-  'VERSION' => '1.110020',
+  'VERSION' => '1.110040',
   'test' => {
     'TESTS' => 't/*.t'
   }
