@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.110040';
+  $Brickyard::VERSION = '1.110060';
 }
 
 # ABSTRACT: Plugin system based on roles
@@ -123,7 +123,7 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.110040
+version 1.110060
 
 =head1 SYNOPSIS
 

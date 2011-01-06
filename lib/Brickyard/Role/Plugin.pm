@@ -4,30 +4,12 @@ use strict;
 
 package Brickyard::Role::Plugin;
 BEGIN {
-  $Brickyard::Role::Plugin::VERSION = '1.110040';
+  $Brickyard::Role::Plugin::VERSION = '1.110060';
 }
 
 # ABSTRACT: Role to use for plugins
-use Role::Basic;
-
-# Can't use Brickyard::Accessor to generate new() and the accessors because
-# Role::Basic would see that it was 'imported' from another package and so
-# would not apply it.
-
-sub new {
-    my $class = shift;
-    bless {@_}, $class;
-}
-
-sub brickyard {
-    $_[0]->{brickyard} = $_[1] if @_ == 2;
-    $_[0]->{brickyard};
-}
-
-sub name {
-    $_[0]->{name} = $_[1] if @_ == 2;
-    $_[0]->{name};
-}
+use Role::Basic allow => 'Brickyard::Accessor';
+use Brickyard::Accessor new => 1, rw => [qw(brickyard name)];
 
 sub plugins_with {
     my ($self, $role) = @_;
@@ -45,7 +27,7 @@ Brickyard::Role::Plugin - Role to use for plugins
 
 =head1 VERSION
 
-version 1.110040
+version 1.110060
 
 =head1 SYNOPSIS
 

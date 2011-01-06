@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard::PluginBundle::Filter;
 BEGIN {
-  $Brickyard::PluginBundle::Filter::VERSION = '1.110040';
+  $Brickyard::PluginBundle::Filter::VERSION = '1.110060';
 }
 
 # ABSTRACT: Plugin bundle to filter another plugin bundle
@@ -57,7 +57,7 @@ Brickyard::PluginBundle::Filter - Plugin bundle to filter another plugin bundle
 
 =head1 VERSION
 
-version 1.110040
+version 1.110060
 
 =head1 SYNOPSIS
 

@@ -1,5 +1,8 @@
 Revision history for Brickyard
 
+1.110060  2011-01-06 12:09:05 Europe/Vienna
+    - roles can use Brickyard::Accessor now with Role::Basic 0.06
+
 1.110040  2011-01-04 11:34:50 Europe/Vienna
     - no more Brickyard::PluginContainer; it's handled by Brickyard.pm itself
     - better error message if we can't require() a package

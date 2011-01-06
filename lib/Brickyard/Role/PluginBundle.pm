@@ -4,26 +4,13 @@ use strict;
 
 package Brickyard::Role::PluginBundle;
 BEGIN {
-  $Brickyard::Role::PluginBundle::VERSION = '1.110040';
+  $Brickyard::Role::PluginBundle::VERSION = '1.110060';
 }
 
 # ABSTRACT: Role to use for plugin bundles
-use Role::Basic;
+use Role::Basic allow => 'Brickyard::Accessor';
+use Brickyard::Accessor new => 1, rw => [qw(brickyard)];
 requires 'bundle_config';
-
-# Can't use Brickyard::Accessor to generate new() and the accessors because
-# Role::Basic would see that it was 'imported' from another package and so
-# would not apply it.
-
-sub new {
-    my $class = shift;
-    bless {@_}, $class;
-}
-
-sub brickyard {
-    $_[0]->{brickyard} = $_[1] if @_ == 2;
-    $_[0]->{brickyard};
-}
 
 sub _exp {
     my ($self, $package) = @_;
@@ -41,7 +28,7 @@ Brickyard::Role::PluginBundle - Role to use for plugin bundles
 
 =head1 VERSION
 
-version 1.110040
+version 1.110060
 
 =head1 SYNOPSIS
 
