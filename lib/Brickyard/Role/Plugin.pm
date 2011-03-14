@@ -4,11 +4,11 @@ use strict;
 
 package Brickyard::Role::Plugin;
 BEGIN {
-  $Brickyard::Role::Plugin::VERSION = '1.110060';
+  $Brickyard::Role::Plugin::VERSION = '1.110730';
 }
 
 # ABSTRACT: Role to use for plugins
-use Role::Basic allow => 'Brickyard::Accessor';
+use Role::Basic 0.11 allow => 'Brickyard::Accessor';
 use Brickyard::Accessor new => 1, rw => [qw(brickyard name)];
 
 sub plugins_with {
@@ -27,7 +27,7 @@ Brickyard::Role::Plugin - Role to use for plugins
 
 =head1 VERSION
 
-version 1.110060
+version 1.110730
 
 =head1 SYNOPSIS
 
@@ -71,7 +71,7 @@ The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
 site near you, or see L<http://search.cpan.org/dist/Brickyard/>.
 
-The development version lives at L<http://github.com/hanekomu/Brickyard.git>
+The development version lives at L<http://github.com/hanekomu/Brickyard>
 and may be cloned from L<git://github.com/hanekomu/Brickyard.git>.
 Instead of sending patches, please fork this project using the standard
 git and github infrastructure.

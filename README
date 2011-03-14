@@ -2,7 +2,7 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.110060
+    version 1.110730
 
 SYNOPSIS
         use Brickyard;
@@ -143,11 +143,10 @@ AVAILABILITY
     Perl Archive Network (CPAN). Visit <http://www.perl.com/CPAN/> to find a
     CPAN site near you, or see <http://search.cpan.org/dist/Brickyard/>.
 
-    The development version lives at
-    <http://github.com/hanekomu/Brickyard.git> and may be cloned from
-    <git://github.com/hanekomu/Brickyard.git>. Instead of sending patches,
-    please fork this project using the standard git and github
-    infrastructure.
+    The development version lives at <http://github.com/hanekomu/Brickyard>
+    and may be cloned from <git://github.com/hanekomu/Brickyard.git>.
+    Instead of sending patches, please fork this project using the standard
+    git and github infrastructure.
 
 AUTHOR
     Marcel Gruenauer <marcel@cpan.org>
