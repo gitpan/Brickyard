@@ -2,7 +2,7 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.110730
+    version 1.110890
 
 SYNOPSIS
         use Brickyard;
@@ -83,14 +83,21 @@ METHODS
 
     A "-" is replaced by the base name plus "::Role::".
 
-    A "=" is replaced by the empty string, so the remained is returned
+    A "=" is replaced by the empty string, so the remainder is returned
     unaltered.
 
-    Otherwise the base name plus "::Plugin::" is prepended.
+    If the package name still hasn't been altered by the expansions
+    mentioned above, custom expansions are applied; see below.
+
+    As a fallback, the base name plus "::Plugin::" is prepended.
 
     The base name is normally whatever "base_package()" returns, but if the
     string starts with "*", the asterisk is deleted and "Brickyard" is used
     for the base name.
+
+    A combination of the default sigils is not expanded, so "@=", for
+    example, is treated as the fallback case, which is probably not what you
+    intended.
 
     Here are some examples of package name expansion:
 
@@ -101,6 +108,31 @@ METHODS
         Some::Thing           MyApp::Plugin::Some::Thing
         -Thing::Frobnulizer   MyApp::Role::Thing::Frobnulizer
 
+    You can also define custom expansions. There are two ways to do this.
+    First you can pass a reference to an array of expansions to the
+    "expand()" method, or you can define them using the "expand" key in the
+    configuration's root section. Each expansion is a string that is
+    evaluated for each package name. Custom expansions are useful if you
+    have plugins in several namespaces, for example.
+
+    Here is an example of defining a custom expansion directly on the
+    Brickyard object:
+
+        my $brickyard = Brickyard->new(
+            base_package => 'My::App',
+            expand       => [ 's/^%/MyOtherApp::Plugin::/' ],
+        );
+
+    Here is an example of defining it in the configuration's root section:
+
+        expand = s/^%/MyOtherApp::Plugin::/
+
+        [@Default]
+
+        # this now refers to MyOtherApp::Plugin::Foo::Bar
+        [%Foo::Bar]
+        baz = 44
+
   init_from_config
     Takes configuration and a root object. For each configuration section it
     creates a plugin object, initializes it with the plugin configuration
@@ -109,7 +141,8 @@ METHODS
     Any configuration keys that appear in the configuration's root section
     are set on the root object. So the root object can be anything that has
     set-accessors for all the configuration keys that can appear in the
-    configuration's root section.
+    configuration's root section. One exception is the "expand" key, which
+    is turned into a custom expansion; see above.
 
     If the configuration is a string in "INI" format, it is parsed. It can
     also be a configuration structure as returned by "parse_ini()" or a
@@ -127,6 +160,9 @@ METHODS
 
   reset_plugins
     Clears the array of plugins as well as the cache - see "plugins_with()".
+
+  expand
+    Holds custom package name expansions; see above.
 
 INSTALLATION
     See perlmodinstall for information and options on installing Perl

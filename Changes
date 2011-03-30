@@ -1,5 +1,10 @@
 Revision history for Brickyard
 
+1.110890  2011-03-30 15:23:19 Europe/Vienna
+    - You can add custom package name expansions, either directly on the
+      Brickyard object, or in the config's root section.
+    - Added Brickyard::Role::Plugin->normalize_param()
+
 1.110730  2011-03-14 11:25:28 Europe/Vienna
     - require Role::Basic 0.11 to fix CPAN tester-reported failures
 

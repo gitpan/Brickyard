@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard::PluginBundle::Filter;
 BEGIN {
-  $Brickyard::PluginBundle::Filter::VERSION = '1.110730';
+  $Brickyard::PluginBundle::Filter::VERSION = '1.110890';
 }
 
 # ABSTRACT: Plugin bundle to filter another plugin bundle
@@ -36,7 +36,6 @@ sub bundle_config {
 
 sub remove_from_config {
     my ($self, $bundle_config, $remove) = @_;
-    $remove = [ map { $self->_exp($_) } @$remove ];
     for my $i (reverse 0 .. $#$bundle_config) {
         next unless grep { $bundle_config->[$i][1] eq $_ } @$remove;
         splice @$bundle_config, $i, 1;
@@ -57,7 +56,7 @@ Brickyard::PluginBundle::Filter - Plugin bundle to filter another plugin bundle
 
 =head1 VERSION
 
-version 1.110730
+version 1.110890
 
 =head1 SYNOPSIS
 

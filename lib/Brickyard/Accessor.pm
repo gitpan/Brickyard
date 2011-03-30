@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard::Accessor;
 BEGIN {
-  $Brickyard::Accessor::VERSION = '1.110730';
+  $Brickyard::Accessor::VERSION = '1.110890';
 }
 
 # ABSTRACT: Accessor generator for Brickyard classes
@@ -60,7 +60,7 @@ Brickyard::Accessor - Accessor generator for Brickyard classes
 
 =head1 VERSION
 
-version 1.110730
+version 1.110890
 
 =head1 SYNOPSIS
 

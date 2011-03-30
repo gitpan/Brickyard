@@ -14,6 +14,8 @@ HELLOHELLOHELLO
 @Default/Uppercase
 @Default/Repeat
 @Default/Reporter
+%Append
+suffix1suffix2suffix3
 EOEXPECT
 eq_or_diff $text, $expect, 'munge string with string-munger.ini';
 

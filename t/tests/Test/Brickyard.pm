@@ -23,7 +23,7 @@ sub set_base_package : Test(1) {
     is $obj->base_package, 'Foobar', 'set base_package on constructor';
 }
 
-sub expand_package : Test(6) {
+sub expand_package : Test(9) {
     my $test = shift;
     my $obj  = $test->make_object;
     is $obj->expand_package('@Service::Default'),
@@ -34,10 +34,19 @@ sub expand_package : Test(6) {
     is $obj->expand_package('*Filter'), 'Brickyard::Plugin::Filter',
       'expand [*Filter]';
     is $obj->expand_package('=Foo::Bar'), 'Foo::Bar', 'expand [=Foo::Bar]';
+    is $obj->expand_package('@=Foo::Bar'), 'MyApp::Plugin::@=Foo::Bar',
+      'expand [@=Foo::Bar] does not recognize @= as either @ or =';
     is $obj->expand_package('Some::Thing'), 'MyApp::Plugin::Some::Thing',
       'expand [Some::Thing]';
     is $obj->expand_package('-Thing::Frobnulizer'),
       'MyApp::Role::Thing::Frobnulizer', 'expand [-Thing::Frobnulizer]';
+
+    # custom expansions
+    is $obj->expand_package('%Foo::Bar'),
+      'MyApp::Plugin::%Foo::Bar', 'expand [%Foo::Bar] without custom expansion';
+    $obj->expand([ 's/^%/MyOtherApp::Plugin::/' ]);
+    is $obj->expand_package('%Foo::Bar'),
+      'MyOtherApp::Plugin::Foo::Bar', 'expand [%Foo::Bar] with custom expansion';
 }
 
 sub parse_ini : Test(1) {
@@ -55,10 +64,10 @@ baz = blah
 EOINI
     my $config = $test->make_object->parse_ini($ini);
     eq_or_diff $config,
-      [ [ '_',        'MyApp::Plugin::_',             { name => 'Foobar' } ],
-        [ '@Default', 'MyApp::PluginBundle::Default', {} ],
+      [ [ '_',        '_',        { name => 'Foobar' } ],
+        [ '@Default', '@Default', {} ],
         [   'Some::Thing',
-            'MyApp::Plugin::Some::Thing',
+            'Some::Thing',
             {   'baz' => [ '43', 'blah' ],
                 'foo' => 'bar'
             }

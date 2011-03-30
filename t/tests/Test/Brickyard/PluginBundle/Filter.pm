@@ -11,13 +11,13 @@ use parent 'Test::MyBase';
 sub class { 'Brickyard::PluginBundle::Filter' }
 
 sub original_bundle_config {
-    [   [   'Some::Thing',
-            'Foobar::Plugin::Some::Thing',
+    [   [   '@SomeBundle/Some::Thing',
+            'Some::Thing',
             {   'baz' => [ '43', 'blah' ],
                 'foo' => 'bar'
             }
         ],
-        [ 'Other::Thing', 'Foobar::Plugin::Other::Thing', {} ]
+        [ '@SomeBundle/Other::Thing', 'Other::Thing', {} ]
     ];
 }
 
@@ -34,7 +34,7 @@ sub remove_from_config : Test(2) {
       'remove nonexistent plugin';
     $obj->remove_from_config($bundle_config, [qw(Some::Thing)]);
     eq_or_diff $bundle_config,
-      [ [ 'Other::Thing', 'Foobar::Plugin::Other::Thing', {} ] ],
+      [ [ '@SomeBundle/Other::Thing', 'Other::Thing', {} ] ],
       'remove [Some::Thing]';
 }
 1;

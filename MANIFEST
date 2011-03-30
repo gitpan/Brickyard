@@ -17,6 +17,7 @@ t/000-report-versions.t
 t/author-critic.t
 t/config/string-munger-filter.ini
 t/config/string-munger.ini
+t/lib/BrickyardTest/StringMunger/OtherPlugin/Append.pm
 t/lib/BrickyardTest/StringMunger/Plugin/Increment.pm
 t/lib/BrickyardTest/StringMunger/Plugin/Repeat.pm
 t/lib/BrickyardTest/StringMunger/Plugin/Reporter.pm

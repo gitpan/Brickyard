@@ -4,16 +4,17 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.110730';
+  $Brickyard::VERSION = '1.110890';
 }
 
 # ABSTRACT: Plugin system based on roles
-use Brickyard::Accessor rw => [qw(base_package plugins plugins_role_cache)];
+use Brickyard::Accessor rw => [qw(base_package expand plugins plugins_role_cache)];
 
 sub new {
     my $class = shift;
     bless {
         base_package       => 'MyApp',
+        expand             => [],
         plugins            => [],
         plugins_role_cache => {},
         @_
@@ -36,7 +37,7 @@ sub reset_plugins {
 
 sub parse_ini {
     my ($self, $ini) = @_;
-    my @result = ([ '_', $self->expand_package('_'), {} ]);
+    my @result = ([ '_', '_', {} ]);
     my $counter = 0;
     foreach (split /(?:\015{1,2}\012|\015|\012)/, $ini) {
         $counter++;
@@ -45,7 +46,7 @@ sub parse_ini {
 
         # Handle section headers
         if (/^\s*\[\s*(.+?)\s*\]\s*$/) {
-            push @result, [ $1, $self->expand_package($1), {} ];
+            push @result, [ $1, $1, {} ];
             next;
         }
 
@@ -72,9 +73,15 @@ sub expand_package {
     my $self = shift;
     local $_ = shift;
     my $base = s/^\*// ? 'Brickyard' : $self->base_package;
-    return $_ if s/^@/$base\::PluginBundle::/;
-    return $_ if s/^-/$base\::Role::/;
-    return $_ if s/^=//;
+    return $_ if s/^@(?=\w)/$base\::PluginBundle::/;
+    return $_ if s/^-(?=\w)/$base\::Role::/;
+    return $_ if s/^=(?=\w)//;
+    for my $expand (@{ $self->expand }) {
+        my $before = $_;
+        eval $expand;
+        return $_ if $_ ne $before;
+        die $@ if $@;
+    }
     "$base\::Plugin::$_";
 }
 
@@ -87,14 +94,19 @@ sub init_from_config {
     }
 
     for my $section (@$config) {
-        my ($name, $package, $plugin_config) = @$section;
-        if ($name eq '_') {
+        my ($local_name, $name, $plugin_config) = @$section;
+        if ($local_name eq '_') {
 
             # Global container configuration
             while (my ($key, $value) = each %$plugin_config) {
-                $root->$key($value);
+                if ($key eq 'expand') {
+                    push @{ $self->expand }, ref $value eq 'ARRAY' ? @$value : $value;
+                } else {
+                    $root->$key($value);
+                }
             }
         } else {
+            my $package = $section->[1] = $self->expand_package($name);
             eval "require $package";
             die "Cannot require $package: $@" if $@;
             if ($package->DOES('Brickyard::Role::PluginBundle')) {
@@ -102,7 +114,7 @@ sub init_from_config {
                 $self->init_from_config($bundle->bundle_config, $root);
             } else {
                 push @{ $self->plugins } => $package->new(
-                    name      => $name,
+                    name      => $local_name,
                     brickyard => $self,
                     %$plugin_config
                 );
@@ -123,7 +135,7 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.110730
+version 1.110890
 
 =head1 SYNOPSIS
 
@@ -201,22 +213,30 @@ is parsed into this structure:
 
 =head2 expand_package
 
-Takes an abbreviated package name and expands it into the real package name.
-C<INI> section names are processed this way so you don't have to repeat common
-prefixes all the time.
+Takes an abbreviated package name and expands it into the real package
+name. C<INI> section names are processed this way so you don't have to
+repeat common prefixes all the time.
 
-If C<@> occurs at the start of the string, it is replaced by the base name
-plus <::PluginBundle::>.
+If C<@> occurs at the start of the string, it is replaced by the base
+name plus <::PluginBundle::>.
 
 A C<-> is replaced by the base name plus C<::Role::>.
 
-A C<=> is replaced by the empty string, so the remained is returned unaltered.
+A C<=> is replaced by the empty string, so the remainder is returned
+unaltered.
 
-Otherwise the base name plus C<::Plugin::> is prepended.
+If the package name still hasn't been altered by the expansions
+mentioned above, custom expansions are applied; see below.
 
-The base name is normally whatever C<base_package()> returns, but if the
-string starts with C<*>, the asterisk is deleted and C<Brickyard> is used for
-the base name.
+As a fallback, the base name plus C<::Plugin::> is prepended.
+
+The base name is normally whatever C<base_package()> returns, but if
+the string starts with C<*>, the asterisk is deleted and C<Brickyard>
+is used for the base name.
+
+A combination of the default sigils is not expanded, so C<@=>, for
+example, is treated as the fallback case, which is probably not what
+you intended.
 
 Here are some examples of package name expansion:
 
@@ -227,23 +247,50 @@ Here are some examples of package name expansion:
     Some::Thing           MyApp::Plugin::Some::Thing
     -Thing::Frobnulizer   MyApp::Role::Thing::Frobnulizer
 
+You can also define custom expansions. There are two ways to do this.
+First you can pass a reference to an array of expansions to the
+C<expand()> method, or you can define them using the C<expand> key
+in the configuration's root section. Each expansion is a string that
+is evaluated for each package name. Custom expansions are useful if
+you have plugins in several namespaces, for example.
+
+Here is an example of defining a custom expansion directly on the
+L<Brickyard> object:
+
+    my $brickyard = Brickyard->new(
+        base_package => 'My::App',
+        expand       => [ 's/^%/MyOtherApp::Plugin::/' ],
+    );
+
+Here is an example of defining it in the configuration's root section:
+
+    expand = s/^%/MyOtherApp::Plugin::/
+
+    [@Default]
+
+    # this now refers to MyOtherApp::Plugin::Foo::Bar
+    [%Foo::Bar]
+    baz = 44
+
 =head2 init_from_config
 
-Takes configuration and a root object. For each configuration section it
-creates a plugin object, initializes it with the plugin configuration hash and
-adds it to the brickyard's array of plugins.
+Takes configuration and a root object. For each configuration
+section it creates a plugin object, initializes it with the plugin
+configuration hash and adds it to the brickyard's array of plugins.
 
-Any configuration keys that appear in the configuration's root section are set
-on the root object. So the root object can be anything that has set-accessors
-for all the configuration keys that can appear in the configuration's root
-section.
+Any configuration keys that appear in the configuration's root section
+are set on the root object. So the root object can be anything that
+has set-accessors for all the configuration keys that can appear in
+the configuration's root section. One exception is the C<expand> key,
+which is turned into a custom expansion; see above.
 
-If the configuration is a string in C<INI> format, it is parsed. It can also
-be a configuration structure as returned by C<parse_ini()> or a plugin
-bundle's C<bundle_config()> method.
+If the configuration is a string in C<INI> format, it is parsed. It
+can also be a configuration structure as returned by C<parse_ini()> or
+a plugin bundle's C<bundle_config()> method.
 
-If an object is created that consumes the L<Brickyard::Role::PluginBundle>
-role, the bundle is processed recursively.
+If an object is created that consumes the
+L<Brickyard::Role::PluginBundle> role, the bundle is processed
+recursively.
 
 =head2 plugins
 
@@ -251,12 +298,17 @@ Read-write accessor for the reference to an array of plugins.
 
 =head2 plugins_with
 
-Takes a role name and returns a list of all the plugins that consume this
-role. The result is cached, keyed by the role name.
+Takes a role name and returns a list of all the plugins that consume
+this role. The result is cached, keyed by the role name.
 
 =head2 reset_plugins
 
-Clears the array of plugins as well as the cache - see C<plugins_with()>.
+Clears the array of plugins as well as the cache - see
+C<plugins_with()>.
+
+=head2 expand
+
+Holds custom package name expansions; see above.
 
 =head1 INSTALLATION
 

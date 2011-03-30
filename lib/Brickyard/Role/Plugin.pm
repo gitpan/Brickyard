@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard::Role::Plugin;
 BEGIN {
-  $Brickyard::Role::Plugin::VERSION = '1.110730';
+  $Brickyard::Role::Plugin::VERSION = '1.110890';
 }
 
 # ABSTRACT: Role to use for plugins
@@ -15,6 +15,17 @@ sub plugins_with {
     my ($self, $role) = @_;
     $self->brickyard->plugins_with($role);
 }
+
+sub normalize_param {
+    my ($self, $param) = @_;
+    return [] unless defined $param;
+    if (wantarray) {
+        return ref $param eq 'ARRAY' ? @$param : $param;
+    } else {
+        return ref $param eq 'ARRAY' ? $param : [ $param ];
+    }
+}
+
 1;
 
 
@@ -27,7 +38,7 @@ Brickyard::Role::Plugin - Role to use for plugins
 
 =head1 VERSION
 
-version 1.110730
+version 1.110890
 
 =head1 SYNOPSIS
 
@@ -53,6 +64,12 @@ Read-write accessor for the plugin's name.
 =head2 plugins_with
 
 Delegates to the brickyard object's C<plugins_with()> method.
+
+=head2 normalize_param
+
+Utility method to get a parameter value. It returns the parameter with
+the given name so it's ready to be used as a list. It's returned as a
+list in list context and as a reference to a list in scalar context.
 
 =head1 INSTALLATION
 
