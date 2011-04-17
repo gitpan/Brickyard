@@ -1,14 +1,15 @@
-use 5.008;
+use 5.010;
 use warnings;
 use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.110890';
+  $Brickyard::VERSION = '1.111070';
 }
 
 # ABSTRACT: Plugin system based on roles
 use Brickyard::Accessor rw => [qw(base_package expand plugins plugins_role_cache)];
+use Carp qw(croak);
 
 sub new {
     my $class = shift;
@@ -29,6 +30,17 @@ sub plugins_with {
     @{ $self->plugins_role_cache->{$role} };
 }
 
+sub plugins_agree {
+    my ($self, $role, $code) = @_;
+    my @plugins = $self->plugins_with($role);
+    return unless @plugins;
+    for (@plugins) {
+        # $code can use $_->foo($bar)
+        return unless $code->();
+    }
+    1;
+}
+
 sub reset_plugins {
     my $self = shift;
     $self->plugins([]);
@@ -36,7 +48,8 @@ sub reset_plugins {
 }
 
 sub parse_ini {
-    my ($self, $ini) = @_;
+    my ($self, $ini, $callback) = @_;
+    $callback //= sub { $_[0] };  # default: identity function
     my @result = ([ '_', '_', {} ]);
     my $counter = 0;
     foreach (split /(?:\015{1,2}\012|\015|\012)/, $ini) {
@@ -52,21 +65,50 @@ sub parse_ini {
 
         # Handle properties
         if (/^\s*([^=]+?)\s*=\s*(.*?)\s*$/) {
+            my ($key, $value) = ($1, $2);
+            $value = $callback->($value);
             my $section = $result[-1][2];
 
             # if a property is seen multiple times, it becomes an array
-            if (exists $section->{$1}) {
-                $section->{$1} = [ $section->{$1} ]
-                  unless ref $section->{$1} eq 'ARRAY';
-                push @{ $section->{$1} } => $2;
+            if (exists $section->{$key}) {
+                $section->{$key} = [ $section->{$key} ]
+                  unless ref $section->{$key} eq 'ARRAY';
+                push @{ $section->{$key} } => $value;
             } else {
-                $section->{$1} = $2;
+                $section->{$key} = $value;
             }
             next;
         }
         die "Syntax error at line $counter: '$_'";
     }
     \@result;
+}
+
+# appropriated from CGI::Expand
+sub _expand_hash {
+    my $flat = $_[1];
+    my $deep = {};
+    for my $name (keys %$flat) {
+        my ($first, @segments) = split /\./, $name;
+        my $box_ref = \$deep->{$first};
+        for (@segments) {
+            if (/^(0|[1-9]\d*)$/) {
+                $$box_ref = [] unless defined $$box_ref;
+                croak "param clash for $name($_)"
+                  unless ref $$box_ref eq 'ARRAY';
+                $box_ref = \($$box_ref->[$1]);
+            } else {
+                $$box_ref = {} unless defined $$box_ref;
+                croak "param clash for $name($_)"
+                  unless ref $$box_ref eq 'HASH';
+                $box_ref = \($$box_ref->{$_});
+            }
+        }
+        croak "param clash for $name value $flat->{$name}"
+          if defined $$box_ref;
+        $$box_ref = $flat->{$name};
+    }
+    $deep;
 }
 
 sub expand_package {
@@ -86,11 +128,11 @@ sub expand_package {
 }
 
 sub init_from_config {
-    my ($self, $config, $root) = @_;
+    my ($self, $config, $root, $callback) = @_;
     unless (ref $config) {
-        $config = $self->parse_ini(
-            do { local (@ARGV, $/) = $config; <> }
-        );
+        my $config_str = do { local (@ARGV, $/) = $config; <> };
+        $config = $self->parse_ini($config_str, $callback);
+        $_->[2] = $self->_expand_hash($_->[2]) for @$config;
     }
 
     for my $section (@$config) {
@@ -135,7 +177,7 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.110890
+version 1.111070
 
 =head1 SYNOPSIS
 
@@ -211,6 +253,26 @@ is parsed into this structure:
         }
     ]
 
+What if you want to pass more complex configuration like a hash of
+arrays? An C<INI> file is basically just a key-value mapping. In that
+case you can use a special notation for the key where you use dots to
+separate the individual elements - array indices and hash keys. For
+example:
+
+    foo.0.web.1  = bar
+    foo.0.web.2  = baz
+    foo.0.mailto = the-mailto
+    foo.1.url    = the-url
+
+And this would be parsed into this structure:
+
+    foo => [
+        { web    => [ undef, 'bar', 'baz' ],
+          mailto => 'the-mailto',
+        },
+        { url => 'the-url' }
+    ]
+
 =head2 expand_package
 
 Takes an abbreviated package name and expands it into the real package
@@ -274,9 +336,10 @@ Here is an example of defining it in the configuration's root section:
 
 =head2 init_from_config
 
-Takes configuration and a root object. For each configuration
-section it creates a plugin object, initializes it with the plugin
-configuration hash and adds it to the brickyard's array of plugins.
+Takes configuration and a root object, and an optional callback. For
+each configuration section it creates a plugin object, initializes
+it with the plugin configuration hash and adds it to the brickyard's
+array of plugins.
 
 Any configuration keys that appear in the configuration's root section
 are set on the root object. So the root object can be anything that
@@ -292,6 +355,20 @@ If an object is created that consumes the
 L<Brickyard::Role::PluginBundle> role, the bundle is processed
 recursively.
 
+If the callback is given, each value from a key-value pair is filtered
+through that callback. For example, you might want to support
+environment variable expansion like this:
+
+    $brickyard->init_from_config(
+        'myapp.ini',
+        $root_config,
+        sub {
+            my $value = shift;
+            $value =~ s/\$(\w+)/$ENV{$1} || "\$$1"/ge;
+            $value;
+        }
+    );
+
 =head2 plugins
 
 Read-write accessor for the reference to an array of plugins.
@@ -300,6 +377,21 @@ Read-write accessor for the reference to an array of plugins.
 
 Takes a role name and returns a list of all the plugins that consume
 this role. The result is cached, keyed by the role name.
+
+=head2 plugins_agree
+
+Takes a role name and a code reference and calls the code reference
+once for each plugin that consumes the role. It returns 1 if the code
+returns a true value for all plugins, 0 otherwise.
+
+An example will make this clearer:
+
+    # Let the plugins decide
+    sub value_is_valid {
+        my ($self, $value) = @_;
+        $self->brickyard->plugins_agree(-ValueChecker =>
+            sub { $_->value_is_valid($value) }
+    }
 
 =head2 reset_plugins
 

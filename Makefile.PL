@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-BEGIN { require 5.008; }
+BEGIN { require 5.010; }
 
 use ExtUtils::MakeMaker 6.31;
 
@@ -12,13 +12,13 @@ my %WriteMakefileArgs = (
   'ABSTRACT' => 'Plugin system based on roles',
   'AUTHOR' => 'Marcel Gruenauer <marcel@cpan.org>',
   'BUILD_REQUIRES' => {
-    'Carp' => '0',
     'English' => '0',
     'File::Find' => '0',
     'File::Temp' => '0',
     'Scalar::Util' => '0',
     'Test::Class' => '0',
     'Test::Class::Load' => '0',
+    'Test::Fatal' => '0',
     'Test::More' => '0.94',
     'Test::Most' => '0',
     'parent' => '0'
@@ -31,9 +31,10 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'perl',
   'NAME' => 'Brickyard',
   'PREREQ_PM' => {
-    'Role::Basic' => '0.11'
+    'Carp' => '0',
+    'Role::Basic' => '0.12'
   },
-  'VERSION' => '1.110890',
+  'VERSION' => '1.111070',
   'test' => {
     'TESTS' => 't/*.t'
   }

@@ -1,14 +1,14 @@
-use 5.008;
+use 5.010;
 use warnings;
 use strict;
 
 package Brickyard::Role::Plugin;
 BEGIN {
-  $Brickyard::Role::Plugin::VERSION = '1.110890';
+  $Brickyard::Role::Plugin::VERSION = '1.111070';
 }
 
 # ABSTRACT: Role to use for plugins
-use Role::Basic 0.11 allow => 'Brickyard::Accessor';
+use Role::Basic 0.12 allow => 'Brickyard::Accessor';
 use Brickyard::Accessor new => 1, rw => [qw(brickyard name)];
 
 sub plugins_with {
@@ -38,7 +38,7 @@ Brickyard::Role::Plugin - Role to use for plugins
 
 =head1 VERSION
 
-version 1.110890
+version 1.111070
 
 =head1 SYNOPSIS
 

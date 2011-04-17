@@ -1,10 +1,10 @@
-use 5.008;
+use 5.010;
 use warnings;
 use strict;
 
 package Brickyard::Role::PluginBundle;
 BEGIN {
-  $Brickyard::Role::PluginBundle::VERSION = '1.110890';
+  $Brickyard::Role::PluginBundle::VERSION = '1.111070';
 }
 
 # ABSTRACT: Role to use for plugin bundles
@@ -28,7 +28,7 @@ Brickyard::Role::PluginBundle - Role to use for plugin bundles
 
 =head1 VERSION
 
-version 1.110890
+version 1.111070
 
 =head1 SYNOPSIS
 

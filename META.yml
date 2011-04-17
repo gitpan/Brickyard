@@ -3,20 +3,20 @@ abstract: 'Plugin system based on roles'
 author:
   - 'Marcel Gruenauer <marcel@cpan.org>'
 build_requires:
-  Carp: 0
   English: 0
   File::Find: 0
   File::Temp: 0
   Scalar::Util: 0
   Test::Class: 0
   Test::Class::Load: 0
+  Test::Fatal: 0
   Test::More: 0.94
   Test::Most: 0
   parent: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.31
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110580'
+generated_by: 'Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -25,24 +25,25 @@ name: Brickyard
 provides:
   Brickyard:
     file: lib/Brickyard.pm
-    version: 1.110890
+    version: 1.111070
   Brickyard::Accessor:
     file: lib/Brickyard/Accessor.pm
-    version: 1.110890
+    version: 1.111070
   Brickyard::PluginBundle::Filter:
     file: lib/Brickyard/PluginBundle/Filter.pm
-    version: 1.110890
+    version: 1.111070
   Brickyard::Role::Plugin:
     file: lib/Brickyard/Role/Plugin.pm
-    version: 1.110890
+    version: 1.111070
   Brickyard::Role::PluginBundle:
     file: lib/Brickyard/Role/PluginBundle.pm
-    version: 1.110890
+    version: 1.111070
 requires:
-  Role::Basic: 0.11
-  perl: 5.008
+  Carp: 0
+  Role::Basic: 0.12
+  perl: 5.010
 resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Brickyard
   homepage: http://search.cpan.org/dist/Brickyard/
   repository: git://github.com/hanekomu/Brickyard.git
-version: 1.110890
+version: 1.111070

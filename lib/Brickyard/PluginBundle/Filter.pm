@@ -1,10 +1,10 @@
-use 5.008;
+use 5.010;
 use warnings;
 use strict;
 
 package Brickyard::PluginBundle::Filter;
 BEGIN {
-  $Brickyard::PluginBundle::Filter::VERSION = '1.110890';
+  $Brickyard::PluginBundle::Filter::VERSION = '1.111070';
 }
 
 # ABSTRACT: Plugin bundle to filter another plugin bundle
@@ -56,7 +56,7 @@ Brickyard::PluginBundle::Filter - Plugin bundle to filter another plugin bundle
 
 =head1 VERSION
 
-version 1.110890
+version 1.111070
 
 =head1 SYNOPSIS
 
