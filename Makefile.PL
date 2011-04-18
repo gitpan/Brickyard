@@ -34,7 +34,7 @@ my %WriteMakefileArgs = (
     'Carp' => '0',
     'Role::Basic' => '0.12'
   },
-  'VERSION' => '1.111070',
+  'VERSION' => '1.111080',
   'test' => {
     'TESTS' => 't/*.t'
   }

@@ -4,11 +4,12 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.111070';
+  $Brickyard::VERSION = '1.111080';
 }
 
 # ABSTRACT: Plugin system based on roles
-use Brickyard::Accessor rw => [qw(base_package expand plugins plugins_role_cache)];
+use Brickyard::Accessor rw =>
+  [qw(base_package expand plugins plugins_role_cache)];
 use Carp qw(croak);
 
 sub new {
@@ -35,6 +36,7 @@ sub plugins_agree {
     my @plugins = $self->plugins_with($role);
     return unless @plugins;
     for (@plugins) {
+
         # $code can use $_->foo($bar)
         return unless $code->();
     }
@@ -49,7 +51,7 @@ sub reset_plugins {
 
 sub parse_ini {
     my ($self, $ini, $callback) = @_;
-    $callback //= sub { $_[0] };  # default: identity function
+    $callback //= sub { $_[0] };    # default: identity function
     my @result = ([ '_', '_', {} ]);
     my $counter = 0;
     foreach (split /(?:\015{1,2}\012|\015|\012)/, $ini) {
@@ -79,7 +81,7 @@ sub parse_ini {
             }
             next;
         }
-        die "Syntax error at line $counter: '$_'";
+        die "Syntax error in INI file at line $counter: '$_'";
     }
     \@result;
 }
@@ -127,14 +129,20 @@ sub expand_package {
     "$base\::Plugin::$_";
 }
 
+sub _read_config_file {
+    my ($self, $file) = @_;
+    open my $fh, '<', $file or die "can't open $file for reading: $!\n";
+    my $config = do { local $/; <$fh> };
+    close $fh or die "can't close $file: $!\n";
+    $config;
+}
+
 sub init_from_config {
     my ($self, $config, $root, $callback) = @_;
     unless (ref $config) {
-        my $config_str = do { local (@ARGV, $/) = $config; <> };
-        $config = $self->parse_ini($config_str, $callback);
+        $config = $self->parse_ini($self->_read_config_file($config), $callback);
         $_->[2] = $self->_expand_hash($_->[2]) for @$config;
     }
-
     for my $section (@$config) {
         my ($local_name, $name, $plugin_config) = @$section;
         if ($local_name eq '_') {
@@ -142,7 +150,8 @@ sub init_from_config {
             # Global container configuration
             while (my ($key, $value) = each %$plugin_config) {
                 if ($key eq 'expand') {
-                    push @{ $self->expand }, ref $value eq 'ARRAY' ? @$value : $value;
+                    push @{ $self->expand },
+                      ref $value eq 'ARRAY' ? @$value : $value;
                 } else {
                     $root->$key($value);
                 }
@@ -164,7 +173,6 @@ sub init_from_config {
         }
     }
 }
-
 1;
 
 
@@ -177,7 +185,7 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.111070
+version 1.111080
 
 =head1 SYNOPSIS
 

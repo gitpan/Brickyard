@@ -1,5 +1,8 @@
 Revision history for Brickyard
 
+1.111080  2011-04-18 13:18:51 Europe/Vienna
+    - better error reporting if the config file can't be opened or parsed
+
 1.111070  2011-04-17 17:50:54 Europe/Vienna
     - Added plugins_agree()
     - Dotted INI config keys are now expanded so you can specify

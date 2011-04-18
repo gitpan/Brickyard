@@ -2,7 +2,7 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.111070
+    version 1.111080
 
 SYNOPSIS
         use Brickyard;
