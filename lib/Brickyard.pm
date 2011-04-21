@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.111080';
+  $Brickyard::VERSION = '1.111110';
 }
 
 # ABSTRACT: Plugin system based on roles
@@ -137,12 +137,38 @@ sub _read_config_file {
     $config;
 }
 
+sub _merge_configs {
+    my ($self, $merged_config, $new_config) = @_;
+    return $new_config unless ref $merged_config eq 'ARRAY';
+    for my $new_section (@$new_config) {
+        my ($local_name, $plugin_config) = @{$new_section}[0,2];
+        if ($local_name eq '_') {
+            # assume the merged config's root section is at the start
+            $merged_config->[0][2] = {
+                %{ $merged_config->[0][2] },
+                %$plugin_config
+            };
+        } else {
+            push @$merged_config => $new_section;
+        }
+    }
+    $merged_config;
+}
+
+sub init_from_config_file {
+    my ($self, $config, $root, $callback) = @_;
+    my $merged_config;
+    my @files = split /:/ => $config;
+    for my $file (@files) {
+        my $this_config = $self->parse_ini($self->_read_config_file($file), $callback);
+        $_->[2] = $self->_expand_hash($_->[2]) for @$this_config;
+        $merged_config = $self->_merge_configs($merged_config, $this_config);
+    }
+    $self->init_from_config($merged_config, $root, $callback);
+}
+
 sub init_from_config {
     my ($self, $config, $root, $callback) = @_;
-    unless (ref $config) {
-        $config = $self->parse_ini($self->_read_config_file($config), $callback);
-        $_->[2] = $self->_expand_hash($_->[2]) for @$config;
-    }
     for my $section (@$config) {
         my ($local_name, $name, $plugin_config) = @$section;
         if ($local_name eq '_') {
@@ -185,14 +211,14 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.111080
+version 1.111110
 
 =head1 SYNOPSIS
 
     use Brickyard;
     my $brickyard = Brickyard->new(base_package => 'My::App');
     my $root_config = MyApp::RootConfig->new;
-    $brickyard->init_from_config('myapp.ini', $root_config);
+    $brickyard->init_from_config_file('myapp.ini', $root_config);
     $_->some_method for $brickyard->plugins_with(-SomeRole);
 
 =head1 DESCRIPTION
@@ -342,6 +368,54 @@ Here is an example of defining it in the configuration's root section:
     [%Foo::Bar]
     baz = 44
 
+=head2 init_from_config_file
+
+Takes a configuration file name specification, a root object, and
+an optional callback. The specification can be a simple file name
+or a colon-separated list of file names. Each of these files is
+parsed with C<parse_ini()> and merged. The result is passed to
+C<init_from_config()>, along with the root object and optional
+callback - see its documentation for what these things do.
+
+When two configurations are merged, the root sections are merged like
+a hash, but any plugin sections are appended in the order they are
+found.
+
+This mechanism exists so you can, for example, have sensitive
+information like passwords in a separate file. For example:
+
+    $ cat myapp.ini
+    key1   = foo
+    key2.0 = bar0
+    key2.1 = bar1
+    [@Default]
+
+    $ cat secret.ini
+    username = admin
+    password = mysecret
+    [Foo::Bar]
+
+To process both configuration files, use:
+
+    $brickyard->init_from_config_file(
+        'myapp.ini:secret.ini', $root_config, $callback
+    );
+
+This is the same as having the following all-in-one configuration
+file:
+
+    key1     = foo
+    key2.0   = bar0
+    key2.1   = bar1
+    username = admin
+    password = mysecret
+
+    [@Default]
+    [Foo::Bar]
+
+We use colons to separate configuration file names so it's easy to get
+the specification from an environment variable.
+
 =head2 init_from_config
 
 Takes configuration and a root object, and an optional callback. For
@@ -355,9 +429,8 @@ has set-accessors for all the configuration keys that can appear in
 the configuration's root section. One exception is the C<expand> key,
 which is turned into a custom expansion; see above.
 
-If the configuration is a string in C<INI> format, it is parsed. It
-can also be a configuration structure as returned by C<parse_ini()> or
-a plugin bundle's C<bundle_config()> method.
+The configuration needs to be a reference to a list of sections as returned by
+C<init_from_config_file()>, for example.
 
 If an object is created that consumes the
 L<Brickyard::Role::PluginBundle> role, the bundle is processed

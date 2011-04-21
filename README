@@ -2,13 +2,13 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.111080
+    version 1.111110
 
 SYNOPSIS
         use Brickyard;
         my $brickyard = Brickyard->new(base_package => 'My::App');
         my $root_config = MyApp::RootConfig->new;
-        $brickyard->init_from_config('myapp.ini', $root_config);
+        $brickyard->init_from_config_file('myapp.ini', $root_config);
         $_->some_method for $brickyard->plugins_with(-SomeRole);
 
 DESCRIPTION
@@ -153,6 +153,51 @@ METHODS
         [%Foo::Bar]
         baz = 44
 
+  init_from_config_file
+    Takes a configuration file name specification, a root object, and an
+    optional callback. The specification can be a simple file name or a
+    colon-separated list of file names. Each of these files is parsed with
+    "parse_ini()" and merged. The result is passed to "init_from_config()",
+    along with the root object and optional callback - see its documentation
+    for what these things do.
+
+    When two configurations are merged, the root sections are merged like a
+    hash, but any plugin sections are appended in the order they are found.
+
+    This mechanism exists so you can, for example, have sensitive
+    information like passwords in a separate file. For example:
+
+        $ cat myapp.ini
+        key1   = foo
+        key2.0 = bar0
+        key2.1 = bar1
+        [@Default]
+
+        $ cat secret.ini
+        username = admin
+        password = mysecret
+        [Foo::Bar]
+
+    To process both configuration files, use:
+
+        $brickyard->init_from_config_file(
+            'myapp.ini:secret.ini', $root_config, $callback
+        );
+
+    This is the same as having the following all-in-one configuration file:
+
+        key1     = foo
+        key2.0   = bar0
+        key2.1   = bar1
+        username = admin
+        password = mysecret
+
+        [@Default]
+        [Foo::Bar]
+
+    We use colons to separate configuration file names so it's easy to get
+    the specification from an environment variable.
+
   init_from_config
     Takes configuration and a root object, and an optional callback. For
     each configuration section it creates a plugin object, initializes it
@@ -165,9 +210,8 @@ METHODS
     configuration's root section. One exception is the "expand" key, which
     is turned into a custom expansion; see above.
 
-    If the configuration is a string in "INI" format, it is parsed. It can
-    also be a configuration structure as returned by "parse_ini()" or a
-    plugin bundle's "bundle_config()" method.
+    The configuration needs to be a reference to a list of sections as
+    returned by "init_from_config_file()", for example.
 
     If an object is created that consumes the Brickyard::Role::PluginBundle
     role, the bundle is processed recursively.

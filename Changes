@@ -1,5 +1,9 @@
 Revision history for Brickyard
 
+1.111110  2011-04-21 17:21:30 Europe/Vienna
+    - support multiple configuration files
+    - separate init_from_config_file(), calls init_from_config()
+
 1.111080  2011-04-18 13:18:51 Europe/Vienna
     - better error reporting if the config file can't be opened or parsed
 

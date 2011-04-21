@@ -15,6 +15,8 @@ lib/Brickyard/Role/PluginBundle.pm
 t/00-compile.t
 t/000-report-versions.t
 t/author-critic.t
+t/config/config1.ini
+t/config/config2.ini
 t/config/string-munger-filter.ini
 t/config/string-munger.ini
 t/lib/BrickyardTest/StringMunger/OtherPlugin/Append.pm
@@ -25,6 +27,7 @@ t/lib/BrickyardTest/StringMunger/Plugin/Uppercase.pm
 t/lib/BrickyardTest/StringMunger/PluginBundle/Default.pm
 t/lib/BrickyardTest/StringMunger/Role/NumberMunger.pm
 t/lib/BrickyardTest/StringMunger/Role/StringMunger.pm
+t/multiple-config-files.t
 t/perlcriticrc
 t/release-check-changes.t
 t/release-dist-manifest.t
