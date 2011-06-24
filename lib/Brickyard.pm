@@ -4,7 +4,7 @@ use strict;
 
 package Brickyard;
 BEGIN {
-  $Brickyard::VERSION = '1.111110';
+  $Brickyard::VERSION = '1.111750';
 }
 
 # ABSTRACT: Plugin system based on roles
@@ -155,19 +155,27 @@ sub _merge_configs {
     $merged_config;
 }
 
-sub init_from_config_file {
+sub init_from_config {
     my ($self, $config, $root, $callback) = @_;
-    my $merged_config;
-    my @files = split /:/ => $config;
-    for my $file (@files) {
-        my $this_config = $self->parse_ini($self->_read_config_file($file), $callback);
+    if (ref $config eq 'SCALAR') {
+        # $config is a reference to the INI string
+        my $this_config = $self->parse_ini($$config, $callback);
         $_->[2] = $self->_expand_hash($_->[2]) for @$this_config;
-        $merged_config = $self->_merge_configs($merged_config, $this_config);
+        $self->init_from_config_structure($this_config, $root, $callback);
+    } else {
+        # $config is a filename
+        my $merged_config;
+        my @files = split /:/ => $config;
+        for my $file (@files) {
+            my $this_config = $self->parse_ini($self->_read_config_file($file), $callback);
+            $_->[2] = $self->_expand_hash($_->[2]) for @$this_config;
+            $merged_config = $self->_merge_configs($merged_config, $this_config);
+        }
+        $self->init_from_config_structure($merged_config, $root, $callback);
     }
-    $self->init_from_config($merged_config, $root, $callback);
 }
 
-sub init_from_config {
+sub init_from_config_structure {
     my ($self, $config, $root, $callback) = @_;
     for my $section (@$config) {
         my ($local_name, $name, $plugin_config) = @$section;
@@ -188,7 +196,7 @@ sub init_from_config {
             die "Cannot require $package: $@" if $@;
             if ($package->DOES('Brickyard::Role::PluginBundle')) {
                 my $bundle = $package->new(brickyard => $self, %$plugin_config);
-                $self->init_from_config($bundle->bundle_config, $root);
+                $self->init_from_config_structure($bundle->bundle_config, $root);
             } else {
                 push @{ $self->plugins } => $package->new(
                     name      => $local_name,
@@ -211,14 +219,14 @@ Brickyard - Plugin system based on roles
 
 =head1 VERSION
 
-version 1.111110
+version 1.111750
 
 =head1 SYNOPSIS
 
     use Brickyard;
     my $brickyard = Brickyard->new(base_package => 'My::App');
     my $root_config = MyApp::RootConfig->new;
-    $brickyard->init_from_config_file('myapp.ini', $root_config);
+    $brickyard->init_from_config('myapp.ini', $root_config);
     $_->some_method for $brickyard->plugins_with(-SomeRole);
 
 =head1 DESCRIPTION
@@ -330,7 +338,7 @@ The base name is normally whatever C<base_package()> returns, but if
 the string starts with C<*>, the asterisk is deleted and C<Brickyard>
 is used for the base name.
 
-A combination of the default sigils is not expanded, so C<@=>, for
+A combination of the default prefixes is not expanded, so C<@=>, for
 example, is treated as the fallback case, which is probably not what
 you intended.
 
@@ -368,14 +376,15 @@ Here is an example of defining it in the configuration's root section:
     [%Foo::Bar]
     baz = 44
 
-=head2 init_from_config_file
+=head2 init_from_config
 
-Takes a configuration file name specification, a root object, and
-an optional callback. The specification can be a simple file name
-or a colon-separated list of file names. Each of these files is
+Takes a configuration file name specification or a reference to a
+string containing the C<INI> string, a root object, and an optional
+callback. The file specification can be a simple file name or
+a colon-separated list of file names. Each of these files is
 parsed with C<parse_ini()> and merged. The result is passed to
-C<init_from_config()>, along with the root object and optional
-callback - see its documentation for what these things do.
+C<init_from_config_structure()>, along with the root object and
+optional callback - see its documentation for what these things do.
 
 When two configurations are merged, the root sections are merged like
 a hash, but any plugin sections are appended in the order they are
@@ -397,7 +406,7 @@ information like passwords in a separate file. For example:
 
 To process both configuration files, use:
 
-    $brickyard->init_from_config_file(
+    $brickyard->init_from_config(
         'myapp.ini:secret.ini', $root_config, $callback
     );
 
@@ -416,12 +425,27 @@ file:
 We use colons to separate configuration file names so it's easy to get
 the specification from an environment variable.
 
-=head2 init_from_config
+If the first argument is a scalar reference, it is assumed that it
+refers to the C<INI> string. So you could pass the configuration
+directly, without having a separate configuration file, like this:
 
-Takes configuration and a root object, and an optional callback. For
-each configuration section it creates a plugin object, initializes
-it with the plugin configuration hash and adds it to the brickyard's
-array of plugins.
+    my $config = <<EOINI;
+    key1     = foo
+    key2.0   = bar0
+    key2.1   = bar1
+
+    [@Default]
+    [Foo::Bar]
+    EOINI
+
+    $brickyard->init_from_config(\$config, $root_config, $callback);
+
+=head2 init_from_config_structure
+
+Takes a configuration structure and a root object, and an optional
+callback. For each configuration section it creates a plugin object,
+initializes it with the plugin configuration hash and adds it to the
+brickyard's array of plugins.
 
 Any configuration keys that appear in the configuration's root section
 are set on the root object. So the root object can be anything that
@@ -429,8 +453,8 @@ has set-accessors for all the configuration keys that can appear in
 the configuration's root section. One exception is the C<expand> key,
 which is turned into a custom expansion; see above.
 
-The configuration needs to be a reference to a list of sections as returned by
-C<init_from_config_file()>, for example.
+The configuration needs to be a reference to a list of sections as
+returned by C<init_from_config()>, for example.
 
 If an object is created that consumes the
 L<Brickyard::Role::PluginBundle> role, the bundle is processed

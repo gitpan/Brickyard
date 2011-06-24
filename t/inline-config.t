@@ -6,8 +6,16 @@ use Brickyard;
 use Test::Most;
 my $brickyard = Brickyard->new(base_package => 'BrickyardTest::StringMunger');
 my $root_config = RootConfig->new;
-$brickyard->init_from_config('t/config/config1.ini:t/config/config2.ini',
-    $root_config);
+
+my $config = <<EOINI;
+key1.subkey1 = foo
+key1.subkey2 = bar
+key2 = baz
+
+[\@Default]
+EOINI
+
+$brickyard->init_from_config(\$config, $root_config);
 is_deeply $root_config,
   bless(
     {   key2 => 'baz',
@@ -18,7 +26,7 @@ is_deeply $root_config,
     },
     'RootConfig'
   ),
-  'merged root section';
+  'root section from inline config';
 done_testing();
 
 package RootConfig;

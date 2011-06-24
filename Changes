@@ -1,5 +1,11 @@
 Revision history for Brickyard
 
+1.111750  2011-06-24 19:51:14 Europe/Vienna
+    - In addition to the config file names, you can also pass a reference to
+      the INI contents directly, so renamed init_from_config() to
+      init_from_config_structure() and init_from_config_file() to
+      init_from_confg().
+
 1.111110  2011-04-21 17:21:30 Europe/Vienna
     - support multiple configuration files
     - separate init_from_config_file(), calls init_from_config()

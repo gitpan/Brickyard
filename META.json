@@ -4,7 +4,7 @@
       "Marcel Gruenauer <marcel@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110930",
+   "generated_by" : "Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930",
    "license" : [
       "perl_5"
    ],
@@ -16,7 +16,7 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.31"
+            "ExtUtils::MakeMaker" : "6.30"
          }
       },
       "runtime" : {
@@ -44,23 +44,23 @@
    "provides" : {
       "Brickyard" : {
          "file" : "lib/Brickyard.pm",
-         "version" : "1.111110"
+         "version" : "1.111750"
       },
       "Brickyard::Accessor" : {
          "file" : "lib/Brickyard/Accessor.pm",
-         "version" : "1.111110"
+         "version" : "1.111750"
       },
       "Brickyard::PluginBundle::Filter" : {
          "file" : "lib/Brickyard/PluginBundle/Filter.pm",
-         "version" : "1.111110"
+         "version" : "1.111750"
       },
       "Brickyard::Role::Plugin" : {
          "file" : "lib/Brickyard/Role/Plugin.pm",
-         "version" : "1.111110"
+         "version" : "1.111750"
       },
       "Brickyard::Role::PluginBundle" : {
          "file" : "lib/Brickyard/Role/PluginBundle.pm",
-         "version" : "1.111110"
+         "version" : "1.111750"
       }
    },
    "release_status" : "stable",
@@ -76,6 +76,6 @@
          "web" : "http://github.com/hanekomu/Brickyard"
       }
    },
-   "version" : "1.111110"
+   "version" : "1.111750"
 }
 

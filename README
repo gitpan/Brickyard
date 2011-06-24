@@ -2,13 +2,13 @@ NAME
     Brickyard - Plugin system based on roles
 
 VERSION
-    version 1.111110
+    version 1.111750
 
 SYNOPSIS
         use Brickyard;
         my $brickyard = Brickyard->new(base_package => 'My::App');
         my $root_config = MyApp::RootConfig->new;
-        $brickyard->init_from_config_file('myapp.ini', $root_config);
+        $brickyard->init_from_config('myapp.ini', $root_config);
         $_->some_method for $brickyard->plugins_with(-SomeRole);
 
 DESCRIPTION
@@ -115,7 +115,7 @@ METHODS
     string starts with "*", the asterisk is deleted and "Brickyard" is used
     for the base name.
 
-    A combination of the default sigils is not expanded, so "@=", for
+    A combination of the default prefixes is not expanded, so "@=", for
     example, is treated as the fallback case, which is probably not what you
     intended.
 
@@ -153,13 +153,14 @@ METHODS
         [%Foo::Bar]
         baz = 44
 
-  init_from_config_file
-    Takes a configuration file name specification, a root object, and an
-    optional callback. The specification can be a simple file name or a
-    colon-separated list of file names. Each of these files is parsed with
-    "parse_ini()" and merged. The result is passed to "init_from_config()",
-    along with the root object and optional callback - see its documentation
-    for what these things do.
+  init_from_config
+    Takes a configuration file name specification or a reference to a string
+    containing the "INI" string, a root object, and an optional callback.
+    The file specification can be a simple file name or a colon-separated
+    list of file names. Each of these files is parsed with "parse_ini()" and
+    merged. The result is passed to "init_from_config_structure()", along
+    with the root object and optional callback - see its documentation for
+    what these things do.
 
     When two configurations are merged, the root sections are merged like a
     hash, but any plugin sections are appended in the order they are found.
@@ -180,7 +181,7 @@ METHODS
 
     To process both configuration files, use:
 
-        $brickyard->init_from_config_file(
+        $brickyard->init_from_config(
             'myapp.ini:secret.ini', $root_config, $callback
         );
 
@@ -198,11 +199,26 @@ METHODS
     We use colons to separate configuration file names so it's easy to get
     the specification from an environment variable.
 
-  init_from_config
-    Takes configuration and a root object, and an optional callback. For
-    each configuration section it creates a plugin object, initializes it
-    with the plugin configuration hash and adds it to the brickyard's array
-    of plugins.
+    If the first argument is a scalar reference, it is assumed that it
+    refers to the "INI" string. So you could pass the configuration
+    directly, without having a separate configuration file, like this:
+
+        my $config = <<EOINI;
+        key1     = foo
+        key2.0   = bar0
+        key2.1   = bar1
+
+        [@Default]
+        [Foo::Bar]
+        EOINI
+
+        $brickyard->init_from_config(\$config, $root_config, $callback);
+
+  init_from_config_structure
+    Takes a configuration structure and a root object, and an optional
+    callback. For each configuration section it creates a plugin object,
+    initializes it with the plugin configuration hash and adds it to the
+    brickyard's array of plugins.
 
     Any configuration keys that appear in the configuration's root section
     are set on the root object. So the root object can be anything that has
@@ -211,7 +227,7 @@ METHODS
     is turned into a custom expansion; see above.
 
     The configuration needs to be a reference to a list of sections as
-    returned by "init_from_config_file()", for example.
+    returned by "init_from_config()", for example.
 
     If an object is created that consumes the Brickyard::Role::PluginBundle
     role, the bundle is processed recursively.

@@ -2,9 +2,9 @@
 use strict;
 use warnings;
 
-BEGIN { require 5.010; }
+use 5.010;
 
-use ExtUtils::MakeMaker 6.31;
+use ExtUtils::MakeMaker 6.30;
 
 
 
@@ -24,7 +24,7 @@ my %WriteMakefileArgs = (
     'parent' => '0'
   },
   'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.31'
+    'ExtUtils::MakeMaker' => '6.30'
   },
   'DISTNAME' => 'Brickyard',
   'EXE_FILES' => [],
@@ -34,7 +34,7 @@ my %WriteMakefileArgs = (
     'Carp' => '0',
     'Role::Basic' => '0.12'
   },
-  'VERSION' => '1.111110',
+  'VERSION' => '1.111750',
   'test' => {
     'TESTS' => 't/*.t'
   }
