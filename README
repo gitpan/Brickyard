@@ -1,9 +1,6 @@
 NAME
     Brickyard - Plugin system based on roles
 
-VERSION
-    version 1.111750
-
 SYNOPSIS
         use Brickyard;
         my $brickyard = Brickyard->new(base_package => 'My::App');

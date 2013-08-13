@@ -164,7 +164,7 @@ sub expand_hash : Tests {
         'foo.mailto' => 'the-foo-mailto',
     };
     like exception { $test->make_object->_expand_hash($flat) },
-      qr/^\Qparam clash for foo.mailto(mailto)\E/, 'param clash';
+      qr/param clash for foo\.(mailto|0\.web)/, 'param clash';
 
     #
     $flat = {

@@ -4,7 +4,7 @@
       "Marcel Gruenauer <marcel@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110930",
+   "generated_by" : "Dist::Milla version v1.0.3, Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -13,69 +13,63 @@
       "version" : "2"
    },
    "name" : "Brickyard",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples"
+      ]
+   },
    "prereqs" : {
+      "build" : {
+         "requires" : {
+            "English" : "0",
+            "File::Find" : "0",
+            "File::Temp" : "0",
+            "Scalar::Util" : "0",
+            "Test::Class" : "0",
+            "Test::Class::Load" : "0",
+            "Test::Fatal" : "0",
+            "Test::More" : "0.94",
+            "Test::Most" : "0",
+            "parent" : "0"
+         }
+      },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.30"
+            "Module::Build::Tiny" : "0.025"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::Pod" : "1.41"
          }
       },
       "runtime" : {
          "requires" : {
-            "Carp" : 0,
-            "Role::Basic" : "0.12",
-            "perl" : "5.010"
+            "Carp" : "0",
+            "Role::Basic" : "0.12"
          }
-      },
-      "test" : {
-         "requires" : {
-            "English" : 0,
-            "File::Find" : 0,
-            "File::Temp" : 0,
-            "Scalar::Util" : 0,
-            "Test::Class" : 0,
-            "Test::Class::Load" : 0,
-            "Test::Fatal" : 0,
-            "Test::More" : "0.94",
-            "Test::Most" : 0,
-            "parent" : 0
-         }
-      }
-   },
-   "provides" : {
-      "Brickyard" : {
-         "file" : "lib/Brickyard.pm",
-         "version" : "1.111750"
-      },
-      "Brickyard::Accessor" : {
-         "file" : "lib/Brickyard/Accessor.pm",
-         "version" : "1.111750"
-      },
-      "Brickyard::PluginBundle::Filter" : {
-         "file" : "lib/Brickyard/PluginBundle/Filter.pm",
-         "version" : "1.111750"
-      },
-      "Brickyard::Role::Plugin" : {
-         "file" : "lib/Brickyard/Role/Plugin.pm",
-         "version" : "1.111750"
-      },
-      "Brickyard::Role::PluginBundle" : {
-         "file" : "lib/Brickyard/Role/PluginBundle.pm",
-         "version" : "1.111750"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "mailto" : "bug-brickyard at rt.cpan.org",
-         "web" : "http://rt.cpan.org/Public/Dist/Display.html?Name=Brickyard"
+         "web" : "https://github.com/marcelgruenauer/Brickyard/issues"
       },
-      "homepage" : "http://search.cpan.org/dist/Brickyard/",
+      "homepage" : "https://github.com/marcelgruenauer/Brickyard",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/hanekomu/Brickyard.git",
-         "web" : "http://github.com/hanekomu/Brickyard"
+         "url" : "https://github.com/marcelgruenauer/Brickyard.git",
+         "web" : "https://github.com/marcelgruenauer/Brickyard"
       }
    },
-   "version" : "1.111750"
+   "version" : "2.0.0",
+   "x_contributors" : [
+      "Marcel Gruenauer <hanekomu@gmail.com>"
+   ]
 }
 

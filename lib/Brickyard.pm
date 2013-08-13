@@ -1,13 +1,12 @@
+
+package Brickyard;
+
 use 5.010;
 use warnings;
 use strict;
 
-package Brickyard;
-BEGIN {
-  $Brickyard::VERSION = '1.111750';
-}
+our $VERSION = '2.0.0';
 
-# ABSTRACT: Plugin system based on roles
 use Brickyard::Accessor rw =>
   [qw(base_package expand plugins plugins_role_cache)];
 use Carp qw(croak);
@@ -209,17 +208,9 @@ sub init_from_config_structure {
 }
 1;
 
-
-__END__
-=pod
-
 =head1 NAME
 
 Brickyard - Plugin system based on roles
-
-=head1 VERSION
-
-version 1.111750
 
 =head1 SYNOPSIS
 
@@ -539,6 +530,3 @@ This software is copyright (c) 2010 by Marcel Gruenauer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
-
-=cut
-

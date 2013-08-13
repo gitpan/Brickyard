@@ -1,13 +1,10 @@
+
+package Brickyard::PluginBundle::Filter;
+
 use 5.010;
 use warnings;
 use strict;
 
-package Brickyard::PluginBundle::Filter;
-BEGIN {
-  $Brickyard::PluginBundle::Filter::VERSION = '1.111750';
-}
-
-# ABSTRACT: Plugin bundle to filter another plugin bundle
 use Brickyard::Accessor rw => [qw(bundle remove)];
 use Role::Basic 'with';
 with 'Brickyard::Role::PluginBundle';
@@ -43,20 +40,9 @@ sub remove_from_config {
 }
 1;
 
-
-__END__
-=pod
-
-=for test_synopsis 1;
-__END__
-
 =head1 NAME
 
 Brickyard::PluginBundle::Filter - Plugin bundle to filter another plugin bundle
-
-=head1 VERSION
-
-version 1.111750
 
 =head1 SYNOPSIS
 
@@ -104,39 +90,3 @@ remaining configuration.
 Takes a bundle configuration and a reference to an array of package names that
 should be removed from the bundle configuration. Returns the filtered
 configuration.
-
-=head1 INSTALLATION
-
-See perlmodinstall for information and options on installing Perl modules.
-
-=head1 BUGS AND LIMITATIONS
-
-No bugs have been reported.
-
-Please report any bugs or feature requests through the web interface at
-L<http://rt.cpan.org/Public/Dist/Display.html?Name=Brickyard>.
-
-=head1 AVAILABILITY
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<http://search.cpan.org/dist/Brickyard/>.
-
-The development version lives at L<http://github.com/hanekomu/Brickyard>
-and may be cloned from L<git://github.com/hanekomu/Brickyard.git>.
-Instead of sending patches, please fork this project using the standard
-git and github infrastructure.
-
-=head1 AUTHOR
-
-Marcel Gruenauer <marcel@cpan.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2010 by Marcel Gruenauer.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
-
